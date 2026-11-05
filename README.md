@@ -8,6 +8,15 @@ No tiene base de datos.
 - Variables: `ENTRA_TENANT_ID`, `ENTRA_API_CLIENT_ID`, `FRONTEND_URLS`, `ENDPOINT_*` (ver `application.properties`).
 - Respuestas: 401 sin token/token inválido, 403 sin rol suficiente.
 
+| Ruta | Roles permitidos |
+| --- | --- |
+| `/api/admin/**` | Admin |
+| `GET /api/catalog/**` | Admin, Recepcionista, Paciente |
+| `DELETE /api/catalog/**` | Admin |
+| `POST/PUT /api/catalog/**` | Admin, Recepcionista |
+| `/api/appointments/**` | Admin, Recepcionista, Paciente (el servicio refina por dueño) |
+| cualquier otra | denegada |
+
 ```bash
 ./gradlew test
 ./gradlew bootRun

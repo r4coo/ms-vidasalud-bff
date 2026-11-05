@@ -52,8 +52,10 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/health", "/api/health").permitAll()
                 // Administración de RabbitMQ: solo Admin
                 .requestMatchers("/api/admin/**").hasRole("Admin")
-                // Catálogo: lectura para todos los roles; escritura Admin / Recepcionista
+                // Catálogo: lectura para todos los roles; crear/editar Admin y Recepcionista; borrar solo Admin
                 .requestMatchers(HttpMethod.GET, "/api/catalog/**").hasAnyRole("Admin", "Recepcionista", "Paciente")
+                // Borrar del catálogo: solo Admin
+                .requestMatchers(HttpMethod.DELETE, "/api/catalog/**").hasRole("Admin")
                 .requestMatchers("/api/catalog/**").hasAnyRole("Admin", "Recepcionista")
                 // Atenciones: los tres roles (el microservicio refina: el paciente solo ve/cancela las suyas)
                 .requestMatchers("/api/appointments/**").hasAnyRole("Admin", "Recepcionista", "Paciente")
