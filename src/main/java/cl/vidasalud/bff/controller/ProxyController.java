@@ -12,7 +12,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Enruta /api/appointments/**, /api/catalog/** y /api/admin/** hacia su microservicio.
+ * Enruta /api/appointments/**, /api/catalog/**, /api/admin/** (RabbitMQ), /api/admin/kafka/** y
+ * /api/analytics/** hacia su microservicio.
  * La autorización por rol ya fue aplicada por SecurityConfig antes de llegar aquí;
  * los microservicios reciben la identidad en X-User-Email / X-User-Roles.
  */
@@ -21,13 +22,19 @@ public class ProxyController {
     private final Downstream appointments;
     private final Downstream catalog;
     private final Downstream rabbitAdmin;
+    private final Downstream kafkaAdmin;
+    private final Downstream notification;
 
     public ProxyController(@Qualifier("appointments") Downstream appointments,
                            @Qualifier("catalog") Downstream catalog,
-                           @Qualifier("rabbitAdmin") Downstream rabbitAdmin) {
+                           @Qualifier("rabbitAdmin") Downstream rabbitAdmin,
+                           @Qualifier("kafkaAdmin") Downstream kafkaAdmin,
+                           @Qualifier("notification") Downstream notification) {
         this.appointments = appointments;
         this.catalog = catalog;
         this.rabbitAdmin = rabbitAdmin;
+        this.kafkaAdmin = kafkaAdmin;
+        this.notification = notification;
     }
 
     @RequestMapping(path = {"/api/appointments", "/api/appointments/**"},
@@ -49,6 +56,20 @@ public class ProxyController {
     public ResponseEntity<String> admin(HttpServletRequest req, @RequestBody(required = false) String body,
                                         Authentication auth) {
         return forward(rabbitAdmin, req, body, auth);
+    }
+
+    /** Administración de Kafka (tópicos, parámetros, grupos y lag). Más específica que /api/admin/**. */
+    @RequestMapping(path = {"/api/admin/kafka/**"},
+            method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
+    public ResponseEntity<String> kafkaAdmin(HttpServletRequest req, @RequestBody(required = false) String body,
+                                             Authentication auth) {
+        return forward(kafkaAdmin, req, body, auth);
+    }
+
+    /** Métricas en tiempo real construidas por los consumidores Kafka del servicio de notificaciones. */
+    @RequestMapping(path = {"/api/analytics/**"}, method = {RequestMethod.GET})
+    public ResponseEntity<String> analytics(HttpServletRequest req, Authentication auth) {
+        return forward(notification, req, null, auth);
     }
 
     private static ResponseEntity<String> forward(Downstream target, HttpServletRequest req, String body,

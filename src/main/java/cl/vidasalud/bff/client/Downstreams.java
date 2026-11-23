@@ -21,4 +21,14 @@ public class Downstreams {
     Downstream rabbitAdmin(RestClient.Builder b, @Value("${endpoints.rabbit-admin}") String url) {
         return new Downstream(b.clone(), url);
     }
+
+    @Bean("kafkaAdmin")
+    Downstream kafkaAdmin(RestClient.Builder b, @Value("${endpoints.kafka-admin}") String url) {
+        return new Downstream(b.clone(), url);
+    }
+
+    @Bean("notification")
+    Downstream notification(RestClient.Builder b, @Value("${endpoints.notification}") String url) {
+        return new Downstream(b.clone(), url);
+    }
 }

@@ -50,8 +50,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/actuator/health", "/api/health").permitAll()
-                // Administración de RabbitMQ: solo Admin
+                // Administración de RabbitMQ y de Kafka: solo Admin
                 .requestMatchers("/api/admin/**").hasRole("Admin")
+                // Métricas en tiempo real (Kafka): Admin y Recepcionista, solo lectura
+                .requestMatchers(HttpMethod.GET, "/api/analytics/**").hasAnyRole("Admin", "Recepcionista")
                 // Catálogo: lectura para todos los roles; crear/editar Admin y Recepcionista; borrar solo Admin
                 .requestMatchers(HttpMethod.GET, "/api/catalog/**").hasAnyRole("Admin", "Recepcionista", "Paciente")
                 // Borrar del catálogo: solo Admin

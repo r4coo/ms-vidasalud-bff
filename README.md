@@ -11,6 +11,8 @@ No tiene base de datos.
 | Ruta | Roles permitidos |
 | --- | --- |
 | `/api/admin/**` | Admin |
+| `/api/admin/kafka/**` | Admin (Kafka: tópicos, parámetros, grupos, lag) |
+| `GET /api/analytics/**` | Admin, Recepcionista (métricas en tiempo real desde Kafka) |
 | `GET /api/catalog/**` | Admin, Recepcionista, Paciente |
 | `DELETE /api/catalog/**` | Admin |
 | `POST/PUT /api/catalog/**` | Admin, Recepcionista |
